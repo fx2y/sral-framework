@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bio-Mechanical Data Table</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0a0a, #1a1a2e);
+            color: #00ff88;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .search-container {
+            margin-bottom: 20px;
+        }
+        
+        #searchInput {
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid #00ff88;
+            color: #00ff88;
+            padding: 10px;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 5px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff88;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #00ff88;
+        }
+        
+        th {
+            background: rgba(0, 255, 136, 0.2);
+            font-weight: bold;
+        }
+        
+        tr:hover {
+            background: rgba(0, 255, 136, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bio-Mechanical Data Interface</h1>
+        
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search bio-mechanical units...">
+        </div>
+        
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <th>Unit ID</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Performance</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>BM-001</td>
+                    <td>Neural Interface</td>
+                    <td>Active</td>
+                    <td>98.5%</td>
+                </tr>
+                <tr>
+                    <td>BM-002</td>
+                    <td>Servo Motor</td>
+                    <td>Maintenance</td>
+                    <td>85.2%</td>
+                </tr>
+                <tr>
+                    <td>BM-003</td>
+                    <td>Power Core</td>
+                    <td>Active</td>
+                    <td>99.1%</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const table = document.getElementById('dataTable');
+        const tbody = table.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

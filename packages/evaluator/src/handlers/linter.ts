@@ -1,5 +1,3 @@
-import { ESLint } from 'eslint';
-
 interface TestResult {
   score: number;
   details: Record<string, any>;
@@ -9,6 +7,98 @@ interface TestResult {
 interface Env {
   R2_BUCKET: R2Bucket;
   AI: Ai;
+}
+
+interface LintIssue {
+  line: number;
+  column: number;
+  severity: 'error' | 'warning';
+  message: string;
+  ruleId: string;
+}
+
+// Simple syntax checker that can run in Workers runtime
+function performBasicLinting(sourceCode: string): { errors: LintIssue[], warnings: LintIssue[] } {
+  const errors: LintIssue[] = [];
+  const warnings: LintIssue[] = [];
+  const lines = sourceCode.split('\n');
+
+  lines.forEach((line, index) => {
+    const lineNumber = index + 1;
+    
+    // Check for basic syntax issues
+    // Missing semicolons (simplified check)
+    if (line.trim().match(/^(let|const|var|return|break|continue)\s+.*[^;{}]\s*$/) && !line.includes('//')) {
+      warnings.push({
+        line: lineNumber,
+        column: line.length,
+        severity: 'warning',
+        message: 'Missing semicolon',
+        ruleId: 'semi'
+      });
+    }
+
+    // Check for unused variables (very basic check)
+    const unusedVarMatch = line.match(/^\s*(let|const|var)\s+(\w+)\s*=/);
+    if (unusedVarMatch) {
+      const varName = unusedVarMatch[2];
+      const restOfCode = lines.slice(index + 1).join('\n');
+      if (!restOfCode.includes(varName)) {
+        warnings.push({
+          line: lineNumber,
+          column: line.indexOf(varName) + 1,
+          severity: 'warning',
+          message: `'${varName}' is assigned a value but never used`,
+          ruleId: 'no-unused-vars'
+        });
+      }
+    }
+
+    // Check for basic JavaScript syntax errors
+    if (line.includes('function') && !line.includes('(') && !line.includes('=>')) {
+      errors.push({
+        line: lineNumber,
+        column: line.indexOf('function') + 1,
+        severity: 'error',
+        message: 'Invalid function declaration',
+        ruleId: 'syntax-error'
+      });
+    }
+
+    // Check for unmatched brackets (simplified)
+    const openBrackets = (line.match(/\{/g) || []).length;
+    const closeBrackets = (line.match(/\}/g) || []).length;
+    if (openBrackets !== closeBrackets && line.trim() && !line.includes('//')) {
+      // This is a very basic check - in reality we'd need proper parsing
+      const diff = openBrackets - closeBrackets;
+      if (Math.abs(diff) > 0) {
+        warnings.push({
+          line: lineNumber,
+          column: 1,
+          severity: 'warning',
+          message: 'Potential bracket mismatch',
+          ruleId: 'bracket-match'
+        });
+      }
+    }
+  });
+
+  // Try to parse as JavaScript to catch basic syntax errors
+  try {
+    new Function(sourceCode);
+  } catch (syntaxError) {
+    if (syntaxError instanceof SyntaxError) {
+      errors.push({
+        line: 1,
+        column: 1,
+        severity: 'error',
+        message: syntaxError.message,
+        ruleId: 'syntax-error'
+      });
+    }
+  }
+
+  return { errors, warnings };
 }
 
 export async function handleLinter(sourceCode: string, config: Record<string, any>, env: Env): Promise<TestResult> {
@@ -26,39 +116,11 @@ export async function handleLinter(sourceCode: string, config: Record<string, an
       };
     }
 
-    // Create ESLint instance with default configuration
-    const eslint = new ESLint({
-      baseConfig: {
-        env: {
-          browser: true,
-          es2021: true,
-          node: true,
-        },
-        extends: [
-          'eslint:recommended',
-        ],
-        parserOptions: {
-          ecmaVersion: 'latest',
-          sourceType: 'module',
-        },
-        rules: {
-          // Basic rules that work without TypeScript parser
-          'no-unused-vars': 'error',
-          'no-console': 'warn',
-          'semi': ['error', 'always'],
-          // Override with any custom rules from config
-          ...config.rules,
-        },
-      },
-      useEslintrc: false,
-    });
-
-    // Lint the source code
-    const results = await eslint.lintText(sourceCode, { filePath: 'artifact.js' });
+    // Perform basic linting using our simple checker
+    const { errors, warnings } = performBasicLinting(sourceCode);
     
-    const result = results[0];
-    const errorCount = result?.errorCount || 0;
-    const warningCount = result?.warningCount || 0;
+    const errorCount = errors.length;
+    const warningCount = warnings.length;
     const totalIssues = errorCount + warningCount;
 
     // Calculate score based on issues found
@@ -76,13 +138,7 @@ export async function handleLinter(sourceCode: string, config: Record<string, an
         errors: errorCount,
         warnings: warningCount,
         totalIssues,
-        messages: (result?.messages || []).map(msg => ({
-          line: msg.line,
-          column: msg.column,
-          severity: msg.severity === 2 ? 'error' : 'warning',
-          message: msg.message,
-          ruleId: msg.ruleId,
-        })),
+        messages: [...errors, ...warnings],
       },
     };
   } catch (error) {

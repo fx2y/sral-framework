@@ -1,6 +1,6 @@
 name = "sral-evaluator"
 main = "src/index.ts"
-compatibility_date = "2024-03-26"
+compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
 # Binding for reading artifacts from R2

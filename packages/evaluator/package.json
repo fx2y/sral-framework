@@ -10,15 +10,11 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@sral/shared": "1.0.0",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "@typescript-eslint/parser": "^6.21.0"
+    "@sral/shared": "1.0.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240208.0",
     "@cloudflare/vitest-pool-workers": "^0.2.5",
-    "@types/eslint": "^8.56.2",
-    "eslint": "^8.57.0",
     "typescript": "^5.3.3",
     "vitest": "^1.2.2",
     "wrangler": "^3.28.2"

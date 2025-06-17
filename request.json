@@ -1,0 +1,26 @@
+{
+  "artifact_path": "test-run/artifact-1.html",
+  "scorecard": {
+    "tests": [
+      {
+        "type": "linter",
+        "weight": 0.4,
+        "config": {
+          "parserOptions": { "ecmaVersion": 2022, "sourceType": "module" },
+          "rules": {
+            "semi": ["error", "always"],
+            "no-unused-vars": "warn"
+          },
+          "env": { "browser": true, "es2021": true }
+        }
+      },
+      {
+        "type": "llm_evaluation",
+        "weight": 0.6,
+        "config": {
+          "prompt": "You are a senior UI engineer. Evaluate the following self-contained HTML file. Does it implement a functional, searchable data table with a dark, bio-mechanical theme? Respond with only a JSON object containing two keys: 'score' (a number from 0 to 100) and 'reasoning' (a brief explanation)."
+        }
+      }
+    ]
+  }
+}
