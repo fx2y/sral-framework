@@ -1,0 +1,14 @@
+name = "sral-evaluator"
+main = "src/index.ts"
+compatibility_date = "2024-03-26"
+compatibility_flags = ["nodejs_compat"]
+
+# Binding for reading artifacts from R2
+[[r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "sral-artifacts"
+preview_bucket_name = "sral-artifacts-preview"
+
+# Binding for Workers AI
+[ai]
+binding = "AI"

@@ -1,8 +1,15 @@
 .ai
 
 node_modules
-dist
+**/dist/
+**/build/
+.wrangler/
 
 tsconfig.tsbuildinfo
 
+# Generated JS files in src directories (should use dist/)
+packages/**/src/**/*.js
+packages/**/src/**/*.js.map
+
+# Test artifacts
 **/*.spec.js
