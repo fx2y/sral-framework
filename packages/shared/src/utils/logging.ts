@@ -22,7 +22,7 @@ export function createLogger(
     info(message: string, data?: object): void {
       console.log(JSON.stringify({
         ...baseLog,
-        level: 'info',
+        level: 'INFO',
         message,
         ...data,
       }));
@@ -31,7 +31,7 @@ export function createLogger(
     warn(message: string, data?: object): void {
       console.log(JSON.stringify({
         ...baseLog,
-        level: 'warn',
+        level: 'WARN',
         message,
         ...data,
       }));
@@ -40,7 +40,7 @@ export function createLogger(
     error(message: string, error?: Error, data?: object): void {
       console.log(JSON.stringify({
         ...baseLog,
-        level: 'error',
+        level: 'ERROR',
         message,
         error: error ? {
           name: error.name,
